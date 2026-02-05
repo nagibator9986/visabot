@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен Web-разработчика: HTML & CSS</title>
+    <style>
+        /* --- СБРОС СТИЛЕЙ И БАЗА --- */
+        :root {
+            --primary: #4f46e5; /* Индиго */
+            --primary-hover: #4338ca;
+            --success: #10b981; /* Зеленый */
+            --error: #ef4444; /* Красный */
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- КАРТОЧКА --- */
+        .app-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* --- ЭКРАНЫ --- */
+        .screen {
+            padding: 40px;
+            display: none; /* Скрываем все по умолчанию */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- ТИПОГРАФИКА --- */
+        h1 {
+            font-size: 2.2rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* --- КНОПКИ --- */
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* --- ИНТЕРФЕЙС ТЕСТА --- */
+        .quiz-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #111;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid var(--border);
+            padding: 16px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary);
+            background-color: #f5f7ff;
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: #e0e7ff;
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        /* --- РЕЗУЛЬТАТЫ --- */
+        .score-big {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1;
+        }
+        
+        .score-label {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .results-scroll-area {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding-right: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        /* Скроллбар для результатов */
+        .results-scroll-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-scroll-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .results-scroll-area::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .mistake-item {
+            background: #fef2f2;
+            border-left: 4px solid var(--error);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+        }
+
+        .mistake-q {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            color: #111;
+        }
+
+        .mistake-wrong {
+            color: var(--error);
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .mistake-correct {
+            color: var(--success);
+            font-weight: 600;
+            display: block;
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .mistake-desc {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+            font-style: italic;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 5px;
+        }
+
+        .perfect-score {
+            color: var(--success);
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        /* Адаптив */
+        @media (max-width: 600px) {
+            .app-container {
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+            .screen {
+                padding: 20px;
+            }
+            h1 { font-size: 1.8rem; }
+            .question-text { font-size: 1.2rem; }
+            .score-big { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- ЭКРАН 1: СТАРТ -->
+        <div id="start-screen" class="screen active">
+            <h1>Проверка знаний</h1>
+            <h2>HTML & CSS Основы</h2>
+            <p>Вас ждет 60 вопросов. В конце вы увидите подробный разбор ошибок.</p>
+            <button class="btn" onclick="app.startQuiz()">Начать тестирование</button>
+        </div>
+
+        <!-- ЭКРАН 2: ТЕСТ -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <span id="q-progress-text">Вопрос 1 из 60</span>
+                <span>Web Dev Basic</span>
+            </div>
+            <div class="progress-container">
+                <div id="q-progress-bar" class="progress-fill"></div>
+            </div>
+
+            <div id="q-text" class="question-text">Текст вопроса загружается...</div>
+
+            <div id="q-options" class="options-grid">
+                <!-- Варианты генерируются JS -->
+            </div>
+
+            <div style="margin-top: 30px; width: 100%; text-align: right;">
+                <button id="btn-next" class="btn" onclick="app.nextQuestion()" disabled>Ответить</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
+        <div id="result-screen" class="screen">
+            <h2>Результаты теста</h2>
+            <div class="score-big" id="r-score-percent">0%</div>
+            <div class="score-label" id="r-score-text">0 из 60 верно</div>
+            
+            <button class="btn" onclick="location.reload()">Пройти заново</button>
+
+            <div style="width: 100%; text-align: left; margin-top: 20px; font-weight: bold; color: var(--text-secondary);">
+                Разбор ошибок:
+            </div>
+            
+            <div id="r-mistakes" class="results-scroll-area">
+                <!-- Ошибки -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const db = [
+            // HTML Structure
+            { q: "Что означает HTML?", o: ["HyperText Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Marking Language", "Hyper Tool Multi Language"], a: 0, desc: "Это стандартный язык разметки для документов в Интернете." },
+            { q: "Какой тег является корневым элементом HTML страницы?", o: ["<body>", "<head>", "<html>", "<root>"], a: 2, desc: "<html> содержит в себе весь документ." },
+            { q: "Где должны располагаться мета-теги?", o: ["В <body>", "В <head>", "После </html>", "В <footer>"], a: 1, desc: "<head> содержит метаданные о документе." },
+            { q: "Какой тег создает самый крупный заголовок?", o: ["<h6>", "<head>", "<h1>", "<header>"], a: 2, desc: "<h1> — заголовок первого уровня, самый важный." },
+            { q: "Какой тег создает перенос строки?", o: ["<break>", "<lb>", "<br>", "<newline>"], a: 2, desc: "<br> (line break) — одиночный тег для переноса." },
+            { q: "Какой тег создает абзац?", o: ["<text>", "<p>", "<paragraph>", "<section>"], a: 1, desc: "<p> (paragraph) используется для текстовых абзацев." },
+            { q: "Как правильно создать комментарий в HTML?", o: ["// Comment", "<!-- Comment -->", "/* Comment */", "' Comment"], a: 1, desc: "Синтаксис HTML комментариев: <!-- текст -->." },
+            { q: "Какой атрибут задает адрес ссылки в теге <a>?", o: ["link", "src", "href", "url"], a: 2, desc: "href (Hypertext Reference) указывает путь назначения." },
+            { q: "Какой тег делает текст жирным (важным)?", o: ["<b>", "<strong>", "<bold>", "<important>"], a: 1, desc: "<strong> семантически выделяет важный текст, отображается жирным." },
+            { q: "Какой тег делает текст курсивом (акцент)?", o: ["<i>", "<italic>", "<em>", "<slanted>"], a: 2, desc: "<em> (emphasis) — семантический акцент, отображается курсивом." },
+            
+            // HTML Lists & Tables & Forms
+            { q: "Какой тег создает маркированный (неупорядоченный) список?", o: ["<ol>", "<ul>", "<list>", "<dl>"], a: 1, desc: "<ul> (Unordered List) создает список с точками." },
+            { q: "Какой тег создает нумерованный список?", o: ["<ul>", "<list>", "<ol>", "<num>"], a: 2, desc: "<ol> (Ordered List) создает список с цифрами." },
+            { q: "Что означает тег <li>?", o: ["List Index", "List Item", "Link Item", "Line Insert"], a: 1, desc: "<li> — элемент списка (внутри ul или ol)." },
+            { q: "Какой атрибут добавляет подсказку при наведении?", o: ["alt", "tooltip", "title", "meta"], a: 2, desc: "Атрибут title отображает всплывающую подсказку." },
+            { q: "Какой атрибут обязателен для <img>?", o: ["title", "src", "href", "link"], a: 1, desc: "src указывает путь к изображению." },
+            { q: "Зачем нужен атрибут alt у картинок?", o: ["Для красоты", "Для SEO и скринридеров", "Для загрузки", "Для рамки"], a: 1, desc: "Это альтернативный текст, если картинка не загрузилась." },
+            { q: "Какой input type создает галочку?", o: ["radio", "check", "checkbox", "box"], a: 2, desc: "type='checkbox' позволяет выбрать несколько вариантов." },
+            { q: "Какой input type создает кружок (один выбор из многих)?", o: ["checkbox", "radio", "select", "circle"], a: 1, desc: "type='radio' используется для выбора только одной опции." },
+            { q: "Какой тег создает выпадающий список?", o: ["<input>", "<list>", "<select>", "<dropdown>"], a: 2, desc: "<select> создает контейнер для опций <option>." },
+            { q: "Какой тег связывает текст с input для кликабельности?", o: ["<label>", "<span>", "<caption>", "<mark>"], a: 0, desc: "<label> при клике активирует связанный input." },
+
+            // HTML5 Semantic
+            { q: "Какой тег предназначен для навигации?", o: ["<menu>", "<nav>", "<navigation>", "<dir>"], a: 1, desc: "<nav> — семантический контейнер для ссылок навигации." },
+            { q: "Какой тег обозначает 'подвал' сайта?", o: ["<bottom>", "<end>", "<footer>", "<section>"], a: 2, desc: "<footer> содержит копирайты, контакты и т.д." },
+            { q: "Какой тег обозначает основной контент?", o: ["<body>", "<content>", "<main>", "<center>"], a: 2, desc: "<main> — уникальное основное содержимое страницы." },
+            { q: "Какой тег используется для боковой панели?", o: ["<sidebar>", "<aside>", "<section>", "<div class='side'>"], a: 1, desc: "<aside> — контент, косвенно связанный с основным (сайдбар)." },
+            { q: "Какой тег используется для независимой статьи?", o: ["<section>", "<div>", "<article>", "<item>"], a: 2, desc: "<article> — самостоятельный смысловой блок (пост, новость)." },
+
+            // CSS Basics
+            { q: "Как расшифровывается CSS?", o: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style System", "Colorful Style Sheets"], a: 1, desc: "Cascading Style Sheets (Каскадные таблицы стилей)." },
+            { q: "Какой тег подключает внешний CSS файл?", o: ["<style>", "<css>", "<script>", "<link>"], a: 3, desc: "<link rel='stylesheet' href='style.css'>." },
+            { q: "Где пишется CSS внутри HTML файла?", o: ["В теге <script>", "В теге <style>", "В теге <css>", "В теге <design>"], a: 1, desc: "Внутри тега <style> в секции <head>." },
+            { q: "Как выглядит селектор по ID?", o: [".header", "#header", "*header", "id=header"], a: 1, desc: "Решетка # обозначает ID." },
+            { q: "Как выглядит селектор по классу?", o: ["#menu", "menu", ".menu", "*menu"], a: 2, desc: "Точка . обозначает класс." },
+            { q: "Какое свойство меняет цвет текста?", o: ["text-color", "font-color", "color", "fg"], a: 2, desc: "Свойство color отвечает за цвет шрифта." },
+            { q: "Какое свойство меняет размер шрифта?", o: ["text-size", "font-size", "size", "font-height"], a: 1, desc: "font-size (например, 16px)." },
+            { q: "Как сделать текст жирным в CSS?", o: ["font-weight: bold", "style: bold", "font: bold", "text: thick"], a: 0, desc: "font-weight управляет толщиной." },
+            { q: "Как убрать подчеркивание у ссылки?", o: ["text-decoration: none", "underline: none", "style: no-underline", "decoration: none"], a: 0, desc: "text-decoration управляет линиями у текста." },
+            { q: "Как сделать комментарий в CSS?", o: ["// text", "<!-- text -->", "/* text */", "' text"], a: 2, desc: "CSS комментарии: /* ... */." },
+
+            // Box Model & Layout
+            { q: "Что такое padding?", o: ["Внешний отступ", "Внутренний отступ", "Граница", "Тень"], a: 1, desc: "Отступ от контента до границы элемента." },
+            { q: "Что такое margin?", o: ["Внешний отступ", "Внутренний отступ", "Граница", "Фон"], a: 0, desc: "Отступ от границы элемента до соседей." },
+            { q: "Какое свойство меняет фон элемента?", o: ["color", "bgcolor", "background-color", "background-image"], a: 2, desc: "background-color задает цвет фона." },
+            { q: "Что делает box-sizing: border-box?", o: ["Добавляет рамку", "Включает padding и border в общую ширину", "Убирает margin", "Скругляет углы"], a: 1, desc: "Это предотвращает растягивание элемента при добавлении паддингов." },
+            { q: "Как центрировать блочный элемент по горизонтали?", o: ["text-align: center", "margin: 0 auto", "padding: center", "float: center"], a: 1, desc: "margin: 0 auto работает для блоков с заданной шириной." },
+            { q: "Какое значение display скрывает элемент полностью?", o: ["hidden", "opacity: 0", "display: none", "visibility: hidden"], a: 2, desc: "display: none удаляет элемент из потока документа." },
+            { q: "Какое свойство делает углы круглыми?", o: ["border-radius", "border-round", "corner-radius", "circle"], a: 0, desc: "border-radius: 10px; скругляет углы." },
+            { q: "Как сделать элемент прозрачным на 50%?", o: ["transparent: 50%", "opacity: 0.5", "visible: 0.5", "filter: 50%"], a: 1, desc: "opacity принимает значения от 0 до 1." },
+            { q: "Какое свойство меняет курсор на 'руку'?", o: ["mouse: pointer", "cursor: hand", "cursor: pointer", "pointer: true"], a: 2, desc: "cursor: pointer стандартно для кнопок." },
+            { q: "Как задать приоритет (слой) элемента по оси Z?", o: ["layer", "z-index", "elevation", "depth"], a: 1, desc: "z-index управляет наложением элементов друг на друга." },
+
+            // Flexbox & Modern CSS
+            { q: "Как включить Flexbox?", o: ["display: flex", "position: flex", "display: box", "flex: enable"], a: 0, desc: "display: flex превращает контейнер во флекс-контейнер." },
+            { q: "Какое свойство выравнивает элементы по главной оси?", o: ["align-items", "justify-content", "text-align", "flex-align"], a: 1, desc: "justify-content (например, center, space-between)." },
+            { q: "Какое свойство выравнивает элементы по поперечной оси?", o: ["align-items", "justify-content", "vertical-align", "line-height"], a: 0, desc: "align-items (например, center, stretch)." },
+            { q: "Как разрешить перенос элементов во Flexbox?", o: ["flex-wrap: wrap", "flex-break: true", "word-wrap: break", "display: wrap"], a: 0, desc: "flex-wrap: wrap позволяет элементам падать на новую строку." },
+            { q: "Что такое 1vh?", o: ["1% ширины экрана", "1% высоты экрана", "1 пиксель", "10 пикселей"], a: 1, desc: "vh = Viewport Height." },
+            { q: "Какой селектор выбирает ВСЕ элементы?", o: ["body", "html", "all", "*"], a: 3, desc: "* — универсальный селектор." },
+            { q: "Как выбрать элемент при наведении мыши?", o: [":active", ":hover", ":focus", ":visited"], a: 1, desc: ":hover — псевдокласс наведения." },
+            { q: "Как выбрать первый дочерний элемент?", o: [":first", ":child-1", ":first-child", ":one"], a: 2, desc: ":first-child выбирает первый элемент в родителе." },
+            { q: "Какое значение position вырывает элемент из потока?", o: ["relative", "static", "absolute", "sticky"], a: 2, desc: "absolute (и fixed) убирают элемент из нормального потока." },
+            { q: "Как сделать текст прописными (ВСЕ ЗАГЛАВНЫЕ)?", o: ["text-style: uppercase", "text-transform: uppercase", "font-case: upper", "text: cap"], a: 1, desc: "text-transform: uppercase." },
+            
+            // Extra
+            { q: "Что такое !important?", o: ["Комментарий", "Ошибка", "Повышение приоритета стиля", "Переменная"], a: 2, desc: "Перебивает другие стили, даже инлайновые." },
+            { q: "Какой тег используется для вставки видео?", o: ["<media>", "<movie>", "<video>", "<film>"], a: 2, desc: "<video> — тег HTML5." },
+            { q: "Как создать таблицу?", o: ["<table>", "<grid>", "<tab>", "<sheet>"], a: 0, desc: "<table> — контейнер таблицы." },
+            { q: "Какой тег создает строку в таблице?", o: ["<td>", "<row>", "<tr>", "<th>"], a: 2, desc: "<tr> (Table Row)." },
+            { q: "Какой тег создает ячейку данных в таблице?", o: ["<td>", "<data>", "<tr>", "<cell>"], a: 0, desc: "<td> (Table Data)." }
+        ];
+
+        // Логика приложения
+        const app = {
+            currentIdx: 0,
+            score: 0,
+            mistakes: [],
+            
+            // DOM Elements
+            screens: {
+                start: document.getElementById('start-screen'),
+                quiz: document.getElementById('quiz-screen'),
+                result: document.getElementById('result-screen')
+            },
+            quizEl: {
+                progressText: document.getElementById('q-progress-text'),
+                progressBar: document.getElementById('q-progress-bar'),
+                text: document.getElementById('q-text'),
+                options: document.getElementById('q-options'),
+                btnNext: document.getElementById('btn-next')
+            },
+            resultEl: {
+                percent: document.getElementById('r-score-percent'),
+                text: document.getElementById('r-score-text'),
+                mistakes: document.getElementById('r-mistakes')
+            },
+
+            // State
+            selectedOption: null,
+
+            // Methods
+            switchScreen(screenName) {
+                Object.values(this.screens).forEach(el => el.classList.remove('active'));
+                this.screens[screenName].classList.add('active');
+            },
+
+            startQuiz() {
+                this.currentIdx = 0;
+                this.score = 0;
+                this.mistakes = [];
+                this.loadQuestion();
+                this.switchScreen('quiz');
+            },
+
+            loadQuestion() {
+                const data = db[this.currentIdx];
+                const qEl = this.quizEl;
+
+                // Сброс
+                this.selectedOption = null;
+                qEl.btnNext.disabled = true;
+                qEl.btnNext.textContent = this.currentIdx === db.length - 1 ? "Завершить" : "Ответить";
+
+                // Прогресс
+                qEl.progressText.textContent = `Вопрос ${this.currentIdx + 1} из ${db.length}`;
+                const percent = ((this.currentIdx) / db.length) * 100;
+                qEl.progressBar.style.width = `${percent}%`;
+
+                // Контент
+                qEl.text.textContent = data.q;
+                qEl.options.innerHTML = '';
+
+                // Рендер кнопок
+                data.o.forEach((optText, index) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'option-card';
+                    btn.textContent = optText;
+                    btn.onclick = () => this.selectOption(index, btn);
+                    qEl.options.appendChild(btn);
+                });
+            },
+
+            selectOption(index, domElement) {
+                // Визуальное выделение
+                const allOpts = document.querySelectorAll('.option-card');
+                allOpts.forEach(el => el.classList.remove('selected'));
+                domElement.classList.add('selected');
+
+                this.selectedOption = index;
+                this.quizEl.btnNext.disabled = false;
+            },
+
+            nextQuestion() {
+                const data = db[this.currentIdx];
+
+                // Проверка ответа
+                if (this.selectedOption === data.a) {
+                    this.score++;
+                } else {
+                    this.mistakes.push({
+                        q: data.q,
+                        user: data.o[this.selectedOption],
+                        correct: data.o[data.a],
+                        desc: data.desc
+                    });
+                }
+
+                this.currentIdx++;
+
+                if (this.currentIdx < db.length) {
+                    this.loadQuestion();
+                } else {
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                const percent = Math.round((this.score / db.length) * 100);
+                
+                this.resultEl.percent.textContent = `${percent}%`;
+                this.resultEl.text.textContent = `Вы ответили верно на ${this.score} из ${db.length} вопросов`;
+                
+                // Цвет оценки
+                if (percent >= 80) this.resultEl.percent.style.color = 'var(--success)';
+                else if (percent >= 50) this.resultEl.percent.style.color = 'var(--primary)';
+                else this.resultEl.percent.style.color = 'var(--error)';
+
+                // Вывод ошибок
+                const list = this.resultEl.mistakes;
+                list.innerHTML = '';
+
+                if (this.mistakes.length === 0) {
+                    list.innerHTML = '<div class="perfect-score">Идеально! Ошибок нет. 🎉</div>';
+                } else {
+                    this.mistakes.forEach(m => {
+                        const item = document.createElement('div');
+                        item.className = 'mistake-item';
+                        item.innerHTML = `
+                            <span class="mistake-q">${m.q}</span>
+                            <span class="mistake-wrong">Ваш ответ: ${m.user} ✖</span>
+                            <span class="mistake-correct">Правильно: ${m.correct} ✔</span>
+                            <div class="mistake-desc">💡 ${m.desc}</div>
+                        `;
+                        list.appendChild(item);
+                    });
+                }
+
+                this.switchScreen('result');
+            }
+        };
+    </script>
+</body>
+</html>

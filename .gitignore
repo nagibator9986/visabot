@@ -1,0 +1,71 @@
+# ===========================
+# 🔐 СЕКРЕТЫ И КЛЮЧИ (САМОЕ ВАЖНОЕ)
+# ===========================
+.env
+.env.*
+backend/.env
+bot/.env
+*.env
+
+# Файлы ключей Google и Azure
+google-services.json
+google-servicess.json
+lol.json
+google_forms/token.json
+google_forms/credentials.json
+
+# Любые другие файлы, похожие на ключи (на всякий случай)
+*credential*.json
+*secret*.json
+client_secret*.json
+
+# ===========================
+# 🐍 PYTHON И DJANGO
+# ===========================
+# Виртуальное окружение
+venv/
+.venv/
+env/
+.env/
+
+# Кэш Python (скомпилированные файлы)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Логи и базы данных
+*.log
+*.sqlite3
+*.db
+leads.db
+db.sqlite3
+
+# Django статика (если собирается локально)
+backend/staticfiles/
+backend/media/
+
+# ===========================
+# ⚛️ FRONTEND (NODE.JS / REACT)
+# ===========================
+# Огромная папка с библиотеками (ее никогда не пушат)
+node_modules/
+*/node_modules/
+
+# Папки сборки (build)
+dist/
+build/
+backend/static/assets/
+frontend_build/
+
+# Логи ошибок npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===========================
+# 💻 СИСТЕМНЫЕ И IDE ФАЙЛЫ
+# ===========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

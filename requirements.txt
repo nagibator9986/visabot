@@ -1,0 +1,9 @@
+django
+djangorestframework
+django-cors-headers
+python-dotenv
+requests
+msal
+google-api-python-client
+google-auth
+pytz
